@@ -4,161 +4,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Areszyn Waspros Foundation</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            background-color: purple;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .icons img {
-            width: 40px;
-            margin: 10px;
-        }
-        .countdown {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        .countdown div {
-            background: black;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 18px;
-        }
-        .charts {
-            margin-top: 20px;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { background: #6200ea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        #countdown { display: flex; justify-content: center; font-size: 20px; margin: 20px 0; }
+        .time-box { margin: 0 10px; padding: 10px; background: #333; color: white; border-radius: 5px; }
+        .chart-container { width: 100%; height: 300px; margin: 20px 0; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Areszyn Waspros Foundation ☀️</h1>
-        <p>We're launching soon! Stay updated.</p>
 
-        <input type="text" id="name" placeholder="Enter your name">
-        <input type="email" id="email" placeholder="Enter your email">
-        <input type="text" id="location" placeholder="Detecting your location..." readonly>
-        <button onclick="notifyMe()">Notify Me</button>
+<div class="container">
+    <h2>Areszyn Waspros Foundation 🌞</h2>
+    <p>We're launching soon! Stay updated</p>
 
-        <div class="icons">
-            <a href="https://t.me/waspros" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
-            </a>
-            <a href="https://instagram.com/waspros" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
-            </a>
-        </div>
+    <input type="text" id="name" placeholder="Enter your name">
+    <input type="email" id="email" placeholder="Enter your email">
+    <button onclick="subscribe()">Notify Me</button>
 
-        <h2>Crypto Prices</h2>
-        <p><strong>BTC:</strong> $<span id="btc-price">Loading...</span> 📉</p>
-        <p><strong>ETH:</strong> $<span id="eth-price">Loading...</span> 📉</p>
-        <p><strong>SOL:</strong> $<span id="sol-price">Loading...</span> 📉</p>
-
-        <div class="countdown">
-            <div><span id="days">35</span> Days</div>
-            <div><span id="hours">00</span> Hours</div>
-            <div><span id="minutes">00</span> Minutes</div>
-            <div><span id="seconds">00</span> Seconds</div>
-        </div>
-
-        <div class="charts">
-            <h3>BTC Chart 📉</h3>
-            <iframe src="https://www.coingecko.com/en/coins/bitcoin/widget/large" width="100%" height="200"></iframe>
-
-            <h3>ETH Chart 📉</h3>
-            <iframe src="https://www.coingecko.com/en/coins/ethereum/widget/large" width="100%" height="200"></iframe>
-
-            <h3>SOL Chart 📉</h3>
-            <iframe src="https://www.coingecko.com/en/coins/solana/widget/large" width="100%" height="200"></iframe>
-        </div>
+    <h3>Launch Countdown</h3>
+    <div id="countdown">
+        <div class="time-box" id="days">--</div>
+        <div class="time-box" id="hours">--</div>
+        <div class="time-box" id="minutes">--</div>
+        <div class="time-box" id="seconds">--</div>
     </div>
 
-    <script>
-        // Auto-detect location
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    document.getElementById("location").value = `Lat: ${lat}, Lon: ${lon}`;
-                }, () => {
-                    document.getElementById("location").value = "Location not available";
-                });
-            } else {
-                document.getElementById("location").value = "Geolocation not supported";
-            }
+    <h3>Crypto Prices</h3>
+    <p>BTC: $<span id="btcPrice">Loading...</span> 📉</p>
+    <p>ETH: $<span id="ethPrice">Loading...</span> 📉</p>
+    <p>SOL: $<span id="solPrice">Loading...</span> 📉</p>
+
+    <div class="chart-container"><canvas id="btcChart"></canvas></div>
+    <div class="chart-container"><canvas id="ethChart"></canvas></div>
+    <div class="chart-container"><canvas id="solChart"></canvas></div>
+</div>
+
+<script>
+    const TELEGRAM_BOT_TOKEN = "7255116298:AAGcV3D3FozEw7rQAmHL6r5ULOfMV7wRnQU";
+    const TELEGRAM_USER_ID = "2114237158";
+    const GEO_API_KEY = "67caa7c8d2e18564379515nkc47a093";
+
+    function subscribe() {
+        let name = document.getElementById("name").value;
+        let email = document.getElementById("email").value;
+        
+        if (name === "" || email === "") {
+            alert("Please enter your name and email.");
+            return;
         }
-        getLocation();
 
-        // Crypto Prices from CoinGecko API
-        async function fetchCryptoPrices() {
-            try {
-                let response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd");
-                let data = await response.json();
-                document.getElementById("btc-price").innerText = data.bitcoin.usd;
-                document.getElementById("eth-price").innerText = data.ethereum.usd;
-                document.getElementById("sol-price").innerText = data.solana.usd;
-            } catch (error) {
-                console.error("Error fetching prices:", error);
-            }
+        navigator.geolocation.getCurrentPosition(position => {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+
+            fetch(`https://geocode.maps.co/reverse?lat=${lat}&lon=${lon}&api_key=${GEO_API_KEY}`)
+            .then(response => response.json())
+            .then(data => {
+                let location = `${data.address.city || "Unknown"}, ${data.address.country_code.toUpperCase()}`;
+                sendToTelegram(name, email, location);
+            })
+            .catch(() => sendToTelegram(name, email, "Unknown Location"));
+        });
+    }
+
+    function sendToTelegram(name, email, location) {
+        let message = `🔔 New Subscription:\n👤 Name: ${name}\n📧 Email: ${email}\n📍 Location: ${location}`;
+        let url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_USER_ID}&text=${encodeURIComponent(message)}`;
+
+        fetch(url).then(() => alert("Subscribed successfully!"));
+    }
+
+    function updateCountdown() {
+        let launchDate = new Date("2025-04-15T00:00:00").getTime();
+        let now = new Date().getTime();
+        let diff = launchDate - now;
+
+        if (diff > 0) {
+            document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById("hours").innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            document.getElementById("minutes").innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            document.getElementById("seconds").innerText = Math.floor((diff % (1000 * 60)) / 1000);
         }
-        fetchCryptoPrices();
-        setInterval(fetchCryptoPrices, 60000); // Update every 60 seconds
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
 
-        // Countdown Timer (35 Days)
-        function startCountdown() {
-            let launchDate = new Date();
-            launchDate.setDate(launchDate.getDate() + 35); // 35 Days from now
+    let btcChart, ethChart, solChart;
 
-            function updateCountdown() {
-                let now = new Date();
-                let timeLeft = launchDate - now;
+    function fetchCryptoData() {
+        fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd")
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("btcPrice").innerText = data.bitcoin.usd;
+            document.getElementById("ethPrice").innerText = data.ethereum.usd;
+            document.getElementById("solPrice").innerText = data.solana.usd;
 
-                let days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                let hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                let minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                let seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            updateChart(btcChart, data.bitcoin.usd);
+            updateChart(ethChart, data.ethereum.usd);
+            updateChart(solChart, data.solana.usd);
+        });
+    }
 
-                document.getElementById("days").innerText = days;
-                document.getElementById("hours").innerText = hours;
-                document.getElementById("minutes").innerText = minutes;
-                document.getElementById("seconds").innerText = seconds;
-            }
+    function createChart(ctx) {
+        return new Chart(ctx, {
+            type: "line",
+            data: { labels: [], datasets: [{ label: "Price", data: [], borderColor: "blue", fill: false }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
 
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
+    function updateChart(chart, price) {
+        chart.data.labels.push(new Date().toLocaleTimeString());
+        chart.data.datasets[0].data.push(price);
+        if (chart.data.labels.length > 10) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
         }
-        startCountdown();
+        chart.update();
+    }
 
-        // Notify Me Button
-        function notifyMe() {
-            let name = document.getElementById("name").value;
-            let email = document.getElementById("email").value;
-            if (name === "" || email === "") {
-                alert("Please enter your name and email!");
-                return;
-            }
-            alert(`Thank you, ${name}! You will be notified at ${email}.`);
-        }
-    </script>
+    document.addEventListener("DOMContentLoaded", () => {
+        btcChart = createChart(document.getElementById("btcChart").getContext("2d"));
+        ethChart = createChart(document.getElementById("ethChart").getContext("2d"));
+        solChart = createChart(document.getElementById("solChart").getContext("2d"));
+
+        fetchCryptoData();
+        setInterval(fetchCryptoData, 10000);
+    });
+</script>
+
 </body>
-    </html>
+</html>
