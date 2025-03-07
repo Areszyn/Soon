@@ -6,155 +6,113 @@
     <title>Areszyn Waspros Foundation</title>
     <style>
         body {
-            background-color: black;
-            color: white;
             font-family: Arial, sans-serif;
             text-align: center;
+            background: white;
+            color: black;
             margin: 0;
             padding: 0;
         }
         .container {
-            max-width: 800px;
-            margin: auto;
             padding: 20px;
         }
-        input, button {
+        h1 {
+            font-size: 28px;
+        }
+        input {
+            width: 80%;
+            max-width: 400px;
             padding: 10px;
-            margin: 5px;
-            font-size: 16px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
         button {
-            background-color: purple;
+            background: purple;
             color: white;
+            padding: 10px 20px;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
-        .social-icons img {
-            width: 40px;
+        .icons {
+            margin: 20px;
+        }
+        .icons a {
+            text-decoration: none;
+            color: black;
+            font-size: 18px;
             margin: 10px;
+            display: inline-block;
+        }
+        .icons img {
+            width: 40px;
+            vertical-align: middle;
         }
         .crypto-prices {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            font-size: 20px;
-            margin: 20px 0;
+            font-size: 18px;
+            margin-top: 20px;
         }
         .chart {
+            margin-top: 20px;
             width: 100%;
-            height: 400px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
     </style>
 </head>
-<body onload="fetchCryptoPrices(); fetchBTCChart(); getLocation();">
+<body>
 
     <div class="container">
         <h1>Areszyn Waspros Foundation ☀️</h1>
         <p>We're launching soon! Stay updated.</p>
-        
-        <div id="cryptoPrices"></div>
 
-        <input type="text" id="name" placeholder="Enter your name">
-        <input type="email" id="email" placeholder="Enter your email">
-        <button onclick="subscribe()">Notify Me</button>
+        <input type="text" placeholder="Enter your name">
+        <br>
+        <input type="email" placeholder="Enter your email">
+        <br>
+        <button>Notify Me</button>
 
-        <p id="location"></p>
-
-        <div class="social-icons">
-            <a href="https://t.me/waspros"><img src="telegram.png" alt="Telegram"></a>
-            <a href="https://instagram.com/waspros"><img src="instagram.png" alt="Instagram"></a>
+        <div class="icons">
+            <a href="https://t.me/waspros" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
+                Telegram (@waspros)
+            </a>
+            <a href="https://instagram.com/waspros" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
+                Instagram (@waspros)
+            </a>
         </div>
 
-        <h2>Bitcoin Price Chart</h2>
-        <canvas id="btcChart" class="chart"></canvas>
+        <div class="crypto-prices">
+            <p><b>BTC:</b> $<span id="btc-price">Loading...</span> ⬇️</p>
+            <p><b>ETH:</b> $<span id="eth-price">Loading...</span> ⬇️</p>
+            <p><b>SOL:</b> $<span id="sol-price">Loading...</span> ⬇️</p>
+        </div>
+
+        <div class="chart">
+            <iframe src="https://www.coingecko.com/en/coins/bitcoin/widget" width="100%" height="400"></iframe>
+        </div>
     </div>
 
     <script>
-        function subscribe() {
-            let name = document.getElementById("name").value;
-            let email = document.getElementById("email").value;
+        async function updateCryptoPrices() {
+            try {
+                let response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd");
+                let data = await response.json();
 
-            if (!email) {
-                alert("Please enter a valid email.");
-                return;
-            }
-
-            let message = `New Subscription: \nName: ${name || "N/A"} \nEmail: ${email}`;
-            let telegramBotToken = "7255116298:AAGcV3D3FozEw7rQAmHL6r5ULOfMV7wRnQU";
-            let chatId = "2114237158";
-
-            fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ chat_id: chatId, text: message })
-            }).then(response => {
-                if (response.ok) alert("Subscribed successfully!");
-                else alert("Failed to subscribe.");
-            });
-        }
-
-        function fetchCryptoPrices() {
-            fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true")
-                .then(response => response.json())
-                .then(data => {
-                    let btc = data.bitcoin.usd;
-                    let btcChange = data.bitcoin.usd_24h_change.toFixed(2);
-                    let eth = data.ethereum.usd;
-                    let ethChange = data.ethereum.usd_24h_change.toFixed(2);
-                    let sol = data.solana.usd;
-                    let solChange = data.solana.usd_24h_change.toFixed(2);
-
-                    document.getElementById("cryptoPrices").innerHTML = `
-                        <p>BTC: $${btc} ${btcChange > 0 ? "⬆️" : "⬇️"} ${btcChange}%</p>
-                        <p>ETH: $${eth} ${ethChange > 0 ? "⬆️" : "⬇️"} ${ethChange}%</p>
-                        <p>SOL: $${sol} ${solChange > 0 ? "⬆️" : "⬇️"} ${solChange}%</p>
-                    `;
-                });
-        }
-
-        function fetchBTCChart() {
-            fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7")
-                .then(response => response.json())
-                .then(data => {
-                    let prices = data.prices.map(p => ({ x: new Date(p[0]), y: p[1] }));
-                    let ctx = document.getElementById('btcChart').getContext('2d');
-
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            datasets: [{
-                                label: 'BTC Price (7 Days)',
-                                data: prices,
-                                borderColor: 'white',
-                                fill: false
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                x: { type: 'time', time: { unit: 'day' }, ticks: { color: 'white' } },
-                                y: { ticks: { color: 'white' } }
-                            },
-                            plugins: { legend: { labels: { color: 'white' } } }
-                        }
-                    });
-                });
-        }
-
-        function getLocation() {
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    fetch(`https://geocode.maps.co/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById("location").innerText = `Location: ${data.address.city || data.address.state || data.address.country}`;
-                        });
-                });
-            } else {
-                document.getElementById("location").innerText = "Location not available";
+                document.getElementById("btc-price").textContent = data.bitcoin.usd.toFixed(2);
+                document.getElementById("eth-price").textContent = data.ethereum.usd.toFixed(2);
+                document.getElementById("sol-price").textContent = data.solana.usd.toFixed(2);
+            } catch (error) {
+                console.error("Error fetching prices:", error);
             }
         }
+        
+        updateCryptoPrices();
+        setInterval(updateCryptoPrices, 60000);
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
