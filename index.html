@@ -19,6 +19,23 @@
         h1 {
             font-size: 28px;
         }
+        p {
+            font-size: 16px;
+        }
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .countdown div {
+            background: black;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 80px;
+            font-size: 20px;
+        }
         input {
             width: 80%;
             max-width: 400px;
@@ -46,8 +63,9 @@
             display: inline-block;
         }
         .icons img {
-            width: 40px;
-            vertical-align: middle;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
         }
         .crypto-prices {
             font-size: 18px;
@@ -66,22 +84,25 @@
 
     <div class="container">
         <h1>Areszyn Waspros Foundation ☀️</h1>
-        <p>We're launching soon! Stay updated.</p>
+        <p>Our website is under construction</p>
 
-        <input type="text" placeholder="Enter your name">
-        <br>
-        <input type="email" placeholder="Enter your email">
-        <br>
-        <button>Notify Me</button>
+        <div class="countdown">
+            <div><span id="days">35</span><br>Days</div>
+            <div><span id="hours">00</span><br>Hours</div>
+            <div><span id="minutes">00</span><br>Minutes</div>
+            <div><span id="seconds">00</span><br>Seconds</div>
+        </div>
+
+        <input type="email" placeholder="Your Email">
+        <button>Get Notified</button>
+        <p><small>I promise to <u>never</u> spam</small></p>
 
         <div class="icons">
             <a href="https://t.me/waspros" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
-                Telegram (@waspros)
+                <img src="https://i.imgur.com/9vEIEoM.png" alt="Telegram">
             </a>
             <a href="https://instagram.com/waspros" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram">
-                Instagram (@waspros)
+                <img src="https://i.imgur.com/JyU3E2P.png" alt="Instagram">
             </a>
         </div>
 
@@ -92,26 +113,50 @@
         </div>
 
         <div class="chart">
-            <iframe src="https://www.coingecko.com/en/coins/bitcoin/widget" width="100%" height="400"></iframe>
+            <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:BTCUSDT&theme=light" width="100%" height="400" frameborder="0"></iframe>
         </div>
     </div>
 
     <script>
+        function updateCountdown() {
+            let targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 35);
+
+            function calculateTime() {
+                let now = new Date();
+                let diff = targetDate - now;
+
+                let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                let minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                let seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerText = days;
+                document.getElementById("hours").innerText = hours;
+                document.getElementById("minutes").innerText = minutes;
+                document.getElementById("seconds").innerText = seconds;
+            }
+
+            calculateTime();
+            setInterval(calculateTime, 1000);
+        }
+
         async function updateCryptoPrices() {
             try {
                 let response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd");
                 let data = await response.json();
 
-                document.getElementById("btc-price").textContent = data.bitcoin.usd.toFixed(2);
-                document.getElementById("eth-price").textContent = data.ethereum.usd.toFixed(2);
-                document.getElementById("sol-price").textContent = data.solana.usd.toFixed(2);
+                document.getElementById("btc-price").innerText = data.bitcoin.usd.toLocaleString();
+                document.getElementById("eth-price").innerText = data.ethereum.usd.toLocaleString();
+                document.getElementById("sol-price").innerText = data.solana.usd.toLocaleString();
             } catch (error) {
                 console.error("Error fetching prices:", error);
             }
         }
-        
+
+        updateCountdown();
         updateCryptoPrices();
-        setInterval(updateCryptoPrices, 60000);
+        setInterval(updateCryptoPrices, 30000);
     </script>
 
 </body>
