@@ -5,19 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Areszyn Waspros Foundation</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script> <!-- MD5 for Gravatar -->
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background: #f5f5f5; margin: 0; padding: 0; }
         .container { max-width: 600px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
         input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
         button { background: #6200ea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-        #countdown { display: flex; justify-content: center; font-size: 20px; margin: 20px 0; }
-        .time-box { margin: 0 10px; padding: 10px; background: #333; color: white; border-radius: 5px; }
+        .profile { margin: 10px 0; }
+        .profile img { border-radius: 50%; width: 80px; height: 80px; }
         .chart-container { width: 100%; height: 400px; margin: 20px 0; }
-        @media (max-width: 600px) {
-            .container { padding: 10px; }
-            .time-box { margin: 0 5px; padding: 5px; font-size: 16px; }
-            .chart-container iframe { height: 300px; }
-        }
     </style>
 </head>
 <body>
@@ -30,18 +26,16 @@
     <input type="email" id="email" placeholder="Enter your email" required>
     <button onclick="subscribe()">Notify Me</button>
 
-    <h3>Launch Countdown</h3>
-    <div id="countdown">
-        <div class="time-box" id="days">--</div>
-        <div class="time-box" id="hours">--</div>
-        <div class="time-box" id="minutes">--</div>
-        <div class="time-box" id="seconds">--</div>
+    <!-- Display Gravatar -->
+    <div class="profile" id="profileSection" style="display:none;">
+        <h3>Your Profile</h3>
+        <img id="gravatar" src="" alt="Gravatar Image">
     </div>
 
     <h3>Crypto Prices</h3>
-    <p>BTC: $<span id="btcPrice">Loading...</span> <span aria-label="chart decreasing">📉</span></p>
-    <p>ETH: $<span id="ethPrice">Loading...</span> <span aria-label="chart decreasing">📉</span></p>
-    <p>SOL: $<span id="solPrice">Loading...</span> <span aria-label="chart decreasing">📉</span></p>
+    <p>BTC: $<span id="btcPrice">Loading...</span> 📉</p>
+    <p>ETH: $<span id="ethPrice">Loading...</span> 📉</p>
+    <p>SOL: $<span id="solPrice">Loading...</span> 📉</p>
 
     <h3>Live Charts</h3>
     <div class="chart-container">
@@ -69,6 +63,11 @@
             return;
         }
 
+        // Get Gravatar URL
+        let gravatarUrl = getGravatarUrl(email);
+        document.getElementById("gravatar").src = gravatarUrl;
+        document.getElementById("profileSection").style.display = "block"; // Show profile section
+
         navigator.geolocation.getCurrentPosition(
             position => {
                 let lat = position.coords.latitude;
@@ -77,13 +76,13 @@
                     .then(response => response.json())
                     .then(data => {
                         let location = `${data.address.city || "Unknown"}, ${data.address.country_code.toUpperCase()}`;
-                        sendToTelegram(name, email, location);
+                        sendToTelegram(name, email, location, gravatarUrl);
                     })
-                    .catch(() => sendToTelegram(name, email, "Unknown Location"));
+                    .catch(() => sendToTelegram(name, email, "Unknown Location", gravatarUrl));
             },
             error => {
                 console.error("Geolocation error:", error);
-                sendToTelegram(name, email, "Location Access Denied");
+                sendToTelegram(name, email, "Location Access Denied", gravatarUrl);
             }
         );
     }
@@ -93,8 +92,13 @@
         return regex.test(email);
     }
 
-    function sendToTelegram(name, email, location) {
-        let message = `🔔 New Subscription:\n👤 Name: ${name}\n📧 Email: ${email}\n📍 Location: ${location}`;
+    function getGravatarUrl(email, size = 100) {
+        let hash = md5(email.trim().toLowerCase()); // Convert email to lowercase & hash it
+        return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=identicon`;
+    }
+
+    function sendToTelegram(name, email, location, gravatarUrl) {
+        let message = `🔔 New Subscription:\n👤 Name: ${name}\n📧 Email: ${email}\n📍 Location: ${location}\n🖼 Gravatar: ${gravatarUrl}`;
         let url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_USER_ID}&text=${encodeURIComponent(message)}`;
 
         fetch(url)
@@ -108,34 +112,15 @@
             .catch(() => alert("Subscription failed. Please try again later."));
     }
 
-    function updateCountdown() {
-        let launchDate = new Date("2025-04-15T00:00:00Z").getTime(); // UTC time
-        let now = new Date().getTime();
-        let diff = launchDate - now;
-
-        if (diff > 0) {
-            document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
-            document.getElementById("hours").innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            document.getElementById("minutes").innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            document.getElementById("seconds").innerText = Math.floor((diff % (1000 * 60)) / 1000);
-        }
-    }
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
-
     function fetchCryptoData() {
         fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd")
-            .then(response => {
-                if (!response.ok) throw new Error("Network response was not ok");
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 document.getElementById("btcPrice").innerText = data.bitcoin.usd;
                 document.getElementById("ethPrice").innerText = data.ethereum.usd;
                 document.getElementById("solPrice").innerText = data.solana.usd;
             })
-            .catch(error => {
-                console.error("Error fetching crypto data:", error);
+            .catch(() => {
                 document.getElementById("btcPrice").innerText = "Error";
                 document.getElementById("ethPrice").innerText = "Error";
                 document.getElementById("solPrice").innerText = "Error";
