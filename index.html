@@ -5,12 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="monetag" content="58b1cdaf96ae54a69cb2f3ef90a4f652">
     <title>Areszyn Waspros Foundation</title>
-    
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-FQZ3MMY1C4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-FQZ3MMY1C4');
+    </script>
+
     <!-- Monetag & Ad Script -->
     <script src="https://kulroakonsu.net/88/tag.min.js" data-zone="136292" async data-cfasync="false"></script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script> <!-- MD5 for Gravatar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script>
 
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background: #f5f5f5; margin: 0; padding: 0; }
@@ -32,7 +41,6 @@
     <input type="email" id="email" placeholder="Enter your email" required>
     <button onclick="subscribe()">Notify Me</button>
 
-    <!-- Display Gravatar -->
     <div class="profile" id="profileSection" style="display:none;">
         <h3>Your Profile</h3>
         <img id="gravatar" src="" alt="Gravatar Image">
@@ -69,10 +77,9 @@
             return;
         }
 
-        // Get Gravatar URL
         let gravatarUrl = getGravatarUrl(email);
         document.getElementById("gravatar").src = gravatarUrl;
-        document.getElementById("profileSection").style.display = "block"; // Show profile section
+        document.getElementById("profileSection").style.display = "block";
 
         navigator.geolocation.getCurrentPosition(
             position => {
@@ -99,7 +106,7 @@
     }
 
     function getGravatarUrl(email, size = 100) {
-        let hash = md5(email.trim().toLowerCase()); // Convert email to lowercase & hash it
+        let hash = md5(email.trim().toLowerCase());
         return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=identicon`;
     }
 
