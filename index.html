@@ -6,44 +6,39 @@
   <meta name="monetag" content="58b1cdaf96ae54a69cb2f3ef90a4f652" />
   <title>Areszyn Waspros Foundation</title>
 
-  <!-- Google Fonts for Animation -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto&display=swap" rel="stylesheet">
-
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-FQZ3MMY1C4"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-FQZ3MMY1C4');
   </script>
 
-  <!-- Monetag -->
-  <script src="https://kulroakonsu.net/88/tag.min.js" data-zone="136292" async data-cfasync="false"></script>
+  <!-- Ko-fi Floating Button -->
+  <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
+  <script>
+    kofiWidgetOverlay.draw('areszyn', {
+      'type': 'floating-chat',
+      'floating-chat.donateButton.text': 'Support me',
+      'floating-chat.donateButton.background-color': '#00b9fe',
+      'floating-chat.donateButton.text-color': '#fff'
+    });
+  </script>
 
-  <!-- External Libraries -->
+  <!-- Monetag Ad Script -->
+  <script src="https://kulroakonsu.net/88/tag.min.js" data-zone="136292" async data-cfasync="false"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script>
 
+  <!-- Styles -->
   <style>
     body {
-      font-family: 'Roboto', sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
       background: #f5f5f5;
       margin: 0;
       padding: 0;
-    }
-    h2 {
-      font-family: 'Orbitron', sans-serif;
-      animation: glow 2s ease-in-out infinite alternate;
-    }
-    @keyframes glow {
-      from {
-        text-shadow: 0 0 10px #00b9fe;
-      }
-      to {
-        text-shadow: 0 0 20px #0057fe, 0 0 30px #0057fe;
-      }
     }
     .container {
       max-width: 600px;
@@ -53,160 +48,168 @@
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-    input {
+    input, button {
       width: 90%;
       padding: 10px;
       margin: 10px 0;
-      border: 1px solid #ccc;
       border-radius: 5px;
+      border: 1px solid #ccc;
     }
     button {
       background: #6200ea;
       color: white;
-      padding: 10px 20px;
       border: none;
-      border-radius: 5px;
       cursor: pointer;
-    }
-    .profile {
-      margin: 10px 0;
     }
     .profile img {
       border-radius: 50%;
       width: 80px;
       height: 80px;
+      margin-top: 10px;
     }
     .chart-container {
       width: 100%;
       height: 400px;
       margin: 20px 0;
     }
+    #toast {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #4caf50;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      font-size: 16px;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>Areszyn Waspros Foundation</h2>
-  <p>We're launching soon! Stay updated</p>
+  <div class="container">
+    <h2>Areszyn Waspros Foundation</h2>
+    <p>We're launching soon! Stay updated</p>
 
-  <input type="text" id="name" placeholder="Enter your name" required>
-  <input type="email" id="email" placeholder="Enter your email" required>
-  <button onclick="subscribe()">Notify Me</button>
+    <input type="text" id="name" placeholder="Enter your name" required />
+    <input type="email" id="email" placeholder="Enter your email" required />
+    <button onclick="subscribe()">Notify Me</button>
 
-  <div class="profile" id="profileSection" style="display:none;">
-    <h3>Your Profile</h3>
-    <img id="gravatar" src="" alt="Gravatar Image">
+    <div class="profile" id="profileSection" style="display:none;">
+      <h3>Your Profile</h3>
+      <img id="gravatar" src="" alt="Gravatar Image" />
+    </div>
+
+    <h3>Crypto Prices</h3>
+    <p>BTC: $<span id="btcPrice">Loading...</span></p>
+    <p>ETH: $<span id="ethPrice">Loading...</span></p>
+    <p>SOL: $<span id="solPrice">Loading...</span></p>
+
+    <h3>Live Charts</h3>
+    <div class="chart-container">
+      <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:BTCUSDT&theme=light" width="100%" height="400" frameborder="0"></iframe>
+    </div>
+    <div class="chart-container">
+      <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:ETHUSDT&theme=light" width="100%" height="400" frameborder="0"></iframe>
+    </div>
+    <div class="chart-container">
+      <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:SOLUSDT&theme=light" width="100%" height="400" frameborder="0"></iframe>
+    </div>
   </div>
 
-  <h3>Crypto Prices</h3>
-  <p>BTC: $<span id="btcPrice">Loading...</span></p>
-  <p>ETH: $<span id="ethPrice">Loading...</span></p>
-  <p>SOL: $<span id="solPrice">Loading...</span></p>
+  <!-- iPhone Notification Sound -->
+  <audio id="iphoneNotify" src="https://notificationsounds.com/storage/sounds/file-sounds-1152-pristine.mp3" preload="auto"></audio>
 
-  <h3>Live Charts</h3>
-  <div class="chart-container">
-    <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:BTCUSDT&theme=light"
-      width="100%" height="400px" frameborder="0" loading="lazy"></iframe>
-  </div>
-  <div class="chart-container">
-    <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:ETHUSDT&theme=light"
-      width="100%" height="400px" frameborder="0" loading="lazy"></iframe>
-  </div>
-  <div class="chart-container">
-    <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:SOLUSDT&theme=light"
-      width="100%" height="400px" frameborder="0" loading="lazy"></iframe>
-  </div>
-</div>
+  <!-- Toast Notification -->
+  <div id="toast">✅ Subscribed successfully!</div>
 
-<script>
-  const TELEGRAM_BOT_TOKEN = "7255116298:AAGcV3D3FozEw7rQAmHL6r5ULOfMV7wRnQU";
-  const TELEGRAM_USER_ID = "2114237158";
-  const GEO_API_KEY = "67caa7c8d2e18564379515nkc47a093";
+  <!-- Script -->
+  <script>
+    const TELEGRAM_BOT_TOKEN = "7255116298:AAGcV3D3FozEw7rQAmHL6r5ULOfMV7wRnQU";
+    const TELEGRAM_USER_ID = "2114237158";
+    const GEO_API_KEY = "67caa7c8d2e18564379515nkc47a093";
 
-  function subscribe() {
-    let name = document.getElementById("name").value.trim();
-    let email = document.getElementById("email").value.trim();
+    function subscribe() {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
 
-    if (!name || !email || !validateEmail(email)) {
-      alert("Please enter a valid name and email.");
-      return;
+      if (!name || !validateEmail(email)) {
+        alert("Please enter a valid name and email.");
+        return;
+      }
+
+      const gravatarUrl = getGravatarUrl(email);
+      document.getElementById("gravatar").src = gravatarUrl;
+      document.getElementById("profileSection").style.display = "block";
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          fetch(`https://geocode.maps.co/reverse?lat=${lat}&lon=${lon}&api_key=${GEO_API_KEY}`)
+            .then(res => res.json())
+            .then(data => {
+              const location = `${data.address.city || "Unknown"}, ${data.address.country_code.toUpperCase()}`;
+              sendToTelegram(name, email, location, gravatarUrl);
+            })
+            .catch(() => sendToTelegram(name, email, "Unknown Location", gravatarUrl));
+        },
+        () => {
+          sendToTelegram(name, email, "Location Denied", gravatarUrl);
+        }
+      );
     }
 
-    let gravatarUrl = getGravatarUrl(email);
-    document.getElementById("gravatar").src = gravatarUrl;
-    document.getElementById("profileSection").style.display = "block";
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
 
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        let lat = position.coords.latitude;
-        let lon = position.coords.longitude;
-        fetch(`https://geocode.maps.co/reverse?lat=${lat}&lon=${lon}&api_key=${GEO_API_KEY}`)
-          .then(response => response.json())
-          .then(data => {
-            let location = `${data.address.city || "Unknown"}, ${data.address.country_code.toUpperCase()}`;
-            sendToTelegram(name, email, location, gravatarUrl);
-          })
-          .catch(() => sendToTelegram(name, email, "Unknown Location", gravatarUrl));
-      },
-      error => {
-        sendToTelegram(name, email, "Location Access Denied", gravatarUrl);
-      }
-    );
-  }
+    function getGravatarUrl(email, size = 100) {
+      const hash = md5(email.trim().toLowerCase());
+      return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=identicon`;
+    }
 
-  function validateEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  }
+    function sendToTelegram(name, email, location, gravatarUrl) {
+      const message = `🔔 New Subscription:\n👤 Name: ${name}\n📧 Email: ${email}\n📍 Location: ${location}\n🖼 Gravatar: ${gravatarUrl}`;
+      const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_USER_ID}&text=${encodeURIComponent(message)}`;
 
-  function getGravatarUrl(email, size = 100) {
-    let hash = md5(email.trim().toLowerCase());
-    return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=identicon`;
-  }
+      fetch(url)
+        .then(res => {
+          if (res.ok) {
+            document.getElementById("iphoneNotify").play();
+            showToast();
+          } else {
+            alert("Telegram error. Try again later.");
+          }
+        })
+        .catch(() => alert("Error occurred."));
+    }
 
-  function sendToTelegram(name, email, location, gravatarUrl) {
-    let message = `🔔 New Subscription:\n👤 Name: ${name}\n📧 Email: ${email}\n📍 Location: ${location}\n🖼 Gravatar: ${gravatarUrl}`;
-    let url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_USER_ID}&text=${encodeURIComponent(message)}`;
-    fetch(url)
-      .then(response => {
-        if (response.ok) {
-          alert("Subscribed successfully!");
-        } else {
-          alert("Subscription failed.");
-        }
-      })
-      .catch(() => alert("Subscription failed."));
-  }
+    function showToast() {
+      const toast = document.getElementById("toast");
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 3000);
+    }
 
-  function fetchCryptoData() {
-    fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd")
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("btcPrice").innerText = data.bitcoin?.usd || "N/A";
-        document.getElementById("ethPrice").innerText = data.ethereum?.usd || "N/A";
-        document.getElementById("solPrice").innerText = data.solana?.usd || "N/A";
-      })
-      .catch(() => {
-        document.getElementById("btcPrice").innerText = "Error";
-        document.getElementById("ethPrice").innerText = "Error";
-        document.getElementById("solPrice").innerText = "Error";
-      });
-  }
+    function fetchCryptoData() {
+      fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd")
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("btcPrice").textContent = data.bitcoin?.usd || "N/A";
+          document.getElementById("ethPrice").textContent = data.ethereum?.usd || "N/A";
+          document.getElementById("solPrice").textContent = data.solana?.usd || "N/A";
+        })
+        .catch(() => {
+          document.getElementById("btcPrice").textContent = "API Error";
+          document.getElementById("ethPrice").textContent = "API Error";
+          document.getElementById("solPrice").textContent = "API Error";
+        });
+    }
 
-  fetchCryptoData();
-  setInterval(fetchCryptoData, 10000);
-</script>
-
-<!-- Ko-fi Floating Chat Widget -->
-<script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
-<script>
-  kofiWidgetOverlay.draw('areszyn', {
-    'type': 'floating-chat',
-    'floating-chat.donateButton.text': 'Support me',
-    'floating-chat.donateButton.background-color': '#00b9fe',
-    'floating-chat.donateButton.text-color': '#fff'
-  });
-</script>
-
+    fetchCryptoData();
+    setInterval(fetchCryptoData, 10000);
+  </script>
 </body>
 </html>
