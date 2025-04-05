@@ -1,25 +1,204 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="monetag" content="58b1cdaf96ae54a69cb2f3ef90a4f652">
-    <title>Areszyn Waspros Foundation</title><!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="monetag" content="58b1cdaf96ae54a69cb2f3ef90a4f652" />
+  <title>Areszyn Waspros Foundation</title>
 
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-FQZ3MMY1C4"></script>
+  <!-- Google Fonts for Animation -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto&display=swap" rel="stylesheet">
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FQZ3MMY1C4"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-FQZ3MMY1C4');
+  </script>
+
+  <!-- Monetag -->
+  <script src="https://kulroakonsu.net/88/tag.min.js" data-zone="136292" async data-cfasync="false"></script>
+
+  <!-- External Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      text-align: center;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    h2 {
+      font-family: 'Orbitron', sans-serif;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px #00b9fe;
+      }
+      to {
+        text-shadow: 0 0 20px #0057fe, 0 0 30px #0057fe;
+      }
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #6200ea;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .profile {
+      margin: 10px 0;
+    }
+    .profile img {
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+    }
+    .chart-container {
+      width: 100%;
+      height: 400px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Areszyn Waspros Foundation</h2>
+  <p>We're launching soon! Stay updated</p>
+
+  <input type="text" id="name" placeholder="Enter your name" required>
+  <input type="email" id="email" placeholder="Enter your email" required>
+  <button onclick="subscribe()">Notify Me</button>
+
+  <div class="profile" id="profileSection" style="display:none;">
+    <h3>Your Profile</h3>
+    <img id="gravatar" src="" alt="Gravatar Image">
+  </div>
+
+  <h3>Crypto Prices</h3>
+  <p>BTC: $<span id="btcPrice">Loading...</span></p>
+  <p>ETH: $<span id="ethPrice">Loading...</span></p>
+  <p>SOL: $<span id="solPrice">Loading...</span></p>
+
+  <h3>Live Charts</h3>
+  <div class="chart-container">
+    <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:BTCUSDT&theme=light"
+      width="100%" height="400px" frameborder="0" loading="lazy"></iframe>
+  </div>
+  <div class="chart-container">
+    <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:ETHUSDT&theme=light"
+      width="100%" height="400px" frameborder="0" loading="lazy"></iframe>
+  </div>
+  <div class="chart-container">
+    <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:SOLUSDT&theme=light"
+      width="100%" height="400px" frameborder="0" loading="lazy"></iframe>
+  </div>
+</div>
+
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-FQZ3MMY1C4');
+  const TELEGRAM_BOT_TOKEN = "7255116298:AAGcV3D3FozEw7rQAmHL6r5ULOfMV7wRnQU";
+  const TELEGRAM_USER_ID = "2114237158";
+  const GEO_API_KEY = "67caa7c8d2e18564379515nkc47a093";
+
+  function subscribe() {
+    let name = document.getElementById("name").value.trim();
+    let email = document.getElementById("email").value.trim();
+
+    if (!name || !email || !validateEmail(email)) {
+      alert("Please enter a valid name and email.");
+      return;
+    }
+
+    let gravatarUrl = getGravatarUrl(email);
+    document.getElementById("gravatar").src = gravatarUrl;
+    document.getElementById("profileSection").style.display = "block";
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        let lat = position.coords.latitude;
+        let lon = position.coords.longitude;
+        fetch(`https://geocode.maps.co/reverse?lat=${lat}&lon=${lon}&api_key=${GEO_API_KEY}`)
+          .then(response => response.json())
+          .then(data => {
+            let location = `${data.address.city || "Unknown"}, ${data.address.country_code.toUpperCase()}`;
+            sendToTelegram(name, email, location, gravatarUrl);
+          })
+          .catch(() => sendToTelegram(name, email, "Unknown Location", gravatarUrl));
+      },
+      error => {
+        sendToTelegram(name, email, "Location Access Denied", gravatarUrl);
+      }
+    );
+  }
+
+  function validateEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
+
+  function getGravatarUrl(email, size = 100) {
+    let hash = md5(email.trim().toLowerCase());
+    return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=identicon`;
+  }
+
+  function sendToTelegram(name, email, location, gravatarUrl) {
+    let message = `🔔 New Subscription:\n👤 Name: ${name}\n📧 Email: ${email}\n📍 Location: ${location}\n🖼 Gravatar: ${gravatarUrl}`;
+    let url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_USER_ID}&text=${encodeURIComponent(message)}`;
+    fetch(url)
+      .then(response => {
+        if (response.ok) {
+          alert("Subscribed successfully!");
+        } else {
+          alert("Subscription failed.");
+        }
+      })
+      .catch(() => alert("Subscription failed."));
+  }
+
+  function fetchCryptoData() {
+    fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd")
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("btcPrice").innerText = data.bitcoin?.usd || "N/A";
+        document.getElementById("ethPrice").innerText = data.ethereum?.usd || "N/A";
+        document.getElementById("solPrice").innerText = data.solana?.usd || "N/A";
+      })
+      .catch(() => {
+        document.getElementById("btcPrice").innerText = "Error";
+        document.getElementById("ethPrice").innerText = "Error";
+        document.getElementById("solPrice").innerText = "Error";
+      });
+  }
+
+  fetchCryptoData();
+  setInterval(fetchCryptoData, 10000);
 </script>
 
-<!-- Monetag & Ad Script -->
-<script src="https://kulroakonsu.net/88/tag.min.js" data-zone="136292" async data-cfasync="false"></script>
-
-<!-- Ko-fi Floating Chat -->
-<script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+<!-- Ko-fi Floating Chat Widget -->
+<script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
 <script>
   kofiWidgetOverlay.draw('areszyn', {
     'type': 'floating-chat',
@@ -29,191 +208,5 @@
   });
 </script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script>
-
-<style>
-    body {
-        font-family: 'Poppins', sans-serif;
-        text-align: center;
-        background: #f5f5f5;
-        margin: 0;
-        padding: 0;
-        animation: fadeIn 1s ease-in;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .container {
-        max-width: 600px;
-        margin: 20px auto;
-        padding: 20px;
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    input {
-        width: 90%;
-        padding: 10px;
-        margin: 10px 0;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-
-    input:focus {
-        border-color: #00b9fe;
-        transition: 0.2s;
-    }
-
-    button {
-        background: #6200ea;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: 0.3s ease;
-    }
-
-    button:hover {
-        background-color: #3700b3;
-        transform: scale(1.05);
-    }
-
-    .profile {
-        margin: 10px 0;
-    }
-
-    .profile img {
-        border-radius: 50%;
-        width: 80px;
-        height: 80px;
-    }
-
-    .chart-container {
-        width: 100%;
-        height: 400px;
-        margin: 20px 0;
-    }
-</style>
-
-</head>
-<body><div class="container">
-    <h2>Areszyn Waspros Foundation <span aria-label="sun">🌞</span></h2>
-    <p>We're launching soon! Stay updated</p><input type="text" id="name" placeholder="Enter your name" required>
-<input type="email" id="email" placeholder="Enter your email" required>
-<button onclick="subscribe()">Notify Me</button>
-
-<!-- Display Gravatar -->
-<div class="profile" id="profileSection" style="display:none;">
-    <h3>Your Profile</h3>
-    <img id="gravatar" src="" alt="Gravatar Image">
-</div>
-
-<h3>Crypto Prices</h3>
-<p>BTC: $<span id="btcPrice">Loading...</span> 📉</p>
-<p>ETH: $<span id="ethPrice">Loading...</span> 📉</p>
-<p>SOL: $<span id="solPrice">Loading...</span> 📉</p>
-
-<h3>Live Charts</h3>
-<div class="chart-container">
-    <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:BTCUSDT&theme=light" width="100%" height="400px" frameborder="0" loading="lazy"></iframe>
-</div>
-<div class="chart-container">
-    <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:ETHUSDT&theme=light" width="100%" height="400px" frameborder="0" loading="lazy"></iframe>
-</div>
-<div class="chart-container">
-    <iframe src="https://s.tradingview.com/embed-widget/advanced-chart/?symbol=BINANCE:SOLUSDT&theme=light" width="100%" height="400px" frameborder="0" loading="lazy"></iframe>
-</div>
-
-</div><script>
-    const TELEGRAM_BOT_TOKEN = "7255116298:AAGcV3D3FozEw7rQAmHL6r5ULOfMV7wRnQU";
-    const TELEGRAM_USER_ID = "2114237158";
-    const GEO_API_KEY = "67caa7c8d2e18564379515nkc47a093";
-
-    function subscribe() {
-        let name = document.getElementById("name").value.trim();
-        let email = document.getElementById("email").value.trim();
-
-        if (!name || !email || !validateEmail(email)) {
-            alert("Please enter a valid name and email.");
-            return;
-        }
-
-        let gravatarUrl = getGravatarUrl(email);
-        document.getElementById("gravatar").src = gravatarUrl;
-        document.getElementById("profileSection").style.display = "block";
-
-        navigator.geolocation.getCurrentPosition(
-            position => {
-                let lat = position.coords.latitude;
-                let lon = position.coords.longitude;
-                fetch(`https://geocode.maps.co/reverse?lat=${lat}&lon=${lon}&api_key=${GEO_API_KEY}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        let location = `${data.address.city || "Unknown"}, ${data.address.country_code.toUpperCase()}`;
-                        sendToTelegram(name, email, location, gravatarUrl);
-                    })
-                    .catch(() => sendToTelegram(name, email, "Unknown Location", gravatarUrl));
-            },
-            error => {
-                console.error("Geolocation error:", error);
-                sendToTelegram(name, email, "Location Access Denied", gravatarUrl);
-            }
-        );
-    }
-
-    function validateEmail(email) {
-        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return regex.test(email);
-    }
-
-    function getGravatarUrl(email, size = 100) {
-        let hash = md5(email.trim().toLowerCase());
-        return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=identicon`;
-    }
-
-    function sendToTelegram(name, email, location, gravatarUrl) {
-        let message = `🔔 New Subscription:\n👤 Name: ${name}\n📧 Email: ${email}\n📍 Location: ${location}\n🖼 Gravatar: ${gravatarUrl}`;
-        let url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_USER_ID}&text=${encodeURIComponent(message)}`;
-
-        fetch(url)
-            .then(response => {
-                if (response.ok) {
-                    alert("Subscribed successfully!");
-                } else {
-                    alert("Subscription failed. Please try again later.");
-                }
-            })
-            .catch(() => alert("Subscription failed. Please try again later."));
-    }
-
-    function fetchCryptoData() {
-        fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd")
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("API request failed");
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById("btcPrice").innerText = data.bitcoin?.usd || "N/A";
-                document.getElementById("ethPrice").innerText = data.ethereum?.usd || "N/A";
-                document.getElementById("solPrice").innerText = data.solana?.usd || "N/A";
-            })
-            .catch(error => {
-                console.error("Error fetching crypto prices:", error);
-                document.getElementById("btcPrice").innerText = "API Error";
-                document.getElementById("ethPrice").innerText = "API Error";
-                document.getElementById("solPrice").innerText = "API Error";
-            });
-    }
-
-    fetchCryptoData();
-    setInterval(fetchCryptoData, 10000);
-</script></body>
+</body>
 </html>
